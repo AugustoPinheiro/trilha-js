@@ -1,0 +1,528 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>body{margin:0}[hidden]{display:none!important}</style>
+<title>Trilha de Lógica JS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: caderno de estudos — coluna única, mapa da jornada no topo, uma "folha" por fase, progresso marcado com marca-texto */
+:root {
+  --paper: #f5f7fa;
+  --sheet: #ffffff;
+  --ink: #1b2330;
+  --muted: #5b6676;
+  --line: #dde3ec;
+  --marker: #f7df1e;
+  --marker-ink: #1b2330;
+  --code-bg: #eef2f7;
+  --ai: #4b5fd6;
+  --ai-bg: #eef0fc;
+  --done: #2f8a4c;
+  --font-display: 'Bricolage Grotesque', 'Segoe UI', system-ui, sans-serif;
+  --font-body: 'Atkinson Hyperlegible', 'Segoe UI', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #10151d; --sheet: #171e29; --ink: #e6ebf2; --muted: #9aa6b6; --line: #2a3442;
+    --marker: #e8cf2a; --marker-ink: #10151d; --code-bg: #1f2835; --ai: #9aa8ff; --ai-bg: #1d2340; --done: #5cc27c; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #10151d; --sheet: #171e29; --ink: #e6ebf2; --muted: #9aa6b6; --line: #2a3442;
+  --marker: #e8cf2a; --marker-ink: #10151d; --code-bg: #1f2835; --ai: #9aa8ff; --ai-bg: #1d2340; --done: #5cc27c; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--paper); color: var(--ink); font-family: var(--font-body); font-size: 17px; line-height: 1.6; }
+a { color: inherit; text-decoration-color: var(--muted); text-underline-offset: 3px; }
+.wrap { max-width: 780px; margin: 0 auto; padding-inline: 16px; padding-block: 40px 80px; display: flex; flex-direction: column; gap: 32px; }
+
+h1, h2, h3 { font-family: var(--font-display); line-height: 1.15; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(2.1rem, 6vw, 3.2rem); font-weight: 800; letter-spacing: -0.02em; }
+h2 { font-size: 1.6rem; font-weight: 700; }
+h3 { font-size: 1.1rem; font-weight: 700; }
+p { margin: 0; }
+ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: 4px; }
+.mark { background: linear-gradient(transparent 55%, var(--marker) 55%); color: inherit; padding-inline: 2px; }
+code, pre { font-family: var(--font-mono); font-size: 0.86em; }
+code { background: var(--code-bg); padding: 1px 6px; border-radius: 4px; overflow-wrap: anywhere; }
+pre { background: var(--code-bg); padding: 12px 14px; border-radius: 8px; overflow-x: auto; margin: 0; line-height: 1.5; white-space: pre-wrap; }
+pre code { background: none; padding: 0; }
+.eyebrow { font-family: var(--font-mono); font-size: 0.74rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.block { display: flex; flex-direction: column; gap: 12px; }
+.muted { color: var(--muted); }
+
+header { display: flex; flex-direction: column; gap: 14px; }
+header .lede { font-size: 1.12rem; color: var(--muted); max-width: 62ch; }
+.progress { display: flex; flex-direction: column; gap: 8px; }
+.bar { height: 10px; background: var(--line); border-radius: 99px; overflow: hidden; }
+.bar span { display: block; height: 100%; width: 0; background: var(--marker); transition: width .3s; }
+.count { font-family: var(--font-mono); font-size: 0.85rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+/* mapa da jornada */
+.map { display: flex; flex-direction: column; gap: 2px; }
+.map a { display: grid; grid-template-columns: 2.2em minmax(0, 1fr) 7.5em; align-items: center; gap: 10px; padding: 6px 8px; border-radius: 6px; text-decoration: none; }
+.map a:hover { background: var(--sheet); }
+.map .num { font-family: var(--font-mono); font-size: 0.8rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.map .name { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.map .name span { font-weight: 700; }
+.map .track { height: 6px; background: var(--line); border-radius: 99px; overflow: hidden; }
+.map .track i { display: block; height: 100%; background: var(--ink); opacity: .75; border-radius: 99px; }
+.map .track b { display: block; height: 100%; background: var(--marker); }
+.map .wk { font-family: var(--font-mono); font-size: 0.78rem; color: var(--muted); text-align: right; font-variant-numeric: tabular-nums; }
+.map a.complete .name span::after { content: ' ✓'; color: var(--done); }
+.map-total { font-family: var(--font-mono); font-size: 0.82rem; color: var(--muted); padding-inline: 8px; }
+
+.rhythm { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+.rhythm div { border-top: 3px solid var(--ink); padding-top: 10px; display: flex; flex-direction: column; gap: 4px; }
+.rhythm p { color: var(--muted); font-size: 0.95rem; }
+
+/* IA */
+.ai-panel { background: var(--ai-bg); border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 16px; }
+.ai-panel h2 { color: var(--ai); }
+.ai-rules { counter-reset: r; list-style: none; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.ai-rules li { counter-increment: r; display: grid; grid-template-columns: 1.8em minmax(0, 1fr); gap: 8px; }
+.ai-rules li::before { content: counter(r); font-family: var(--font-mono); font-weight: 600; color: var(--ai); }
+.levels { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; }
+.levels div { background: var(--sheet); border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 4px; font-size: 0.92rem; }
+.levels strong { font-family: var(--font-display); font-size: 1rem; }
+.pill { display: inline-block; font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.04em; text-transform: uppercase; color: var(--ai); border: 1px solid var(--ai); border-radius: 99px; padding: 1px 9px; width: fit-content; }
+.prompt { display: flex; flex-direction: column; gap: 6px; }
+.prompt-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.prompt pre { background: var(--sheet); border: 1px solid var(--line); }
+button.copy { font: inherit; font-family: var(--font-mono); font-size: 0.75rem; background: var(--sheet); color: var(--ai); border: 1px solid var(--ai); border-radius: 6px; padding: 2px 10px; cursor: pointer; }
+
+/* fases */
+.phase { background: var(--sheet); border: 1px solid var(--line); border-radius: 12px; padding: 26px; display: flex; flex-direction: column; gap: 22px; scroll-margin-top: 16px; }
+.phase-head { display: flex; flex-direction: column; gap: 6px; }
+.phase-head p { color: var(--muted); }
+.concepts { display: flex; flex-wrap: wrap; gap: 6px; }
+.concepts code { font-size: 0.8rem; }
+.project { border-top: 1px dashed var(--line); padding-top: 14px; display: flex; flex-direction: column; gap: 8px; }
+.project-title { display: flex; align-items: flex-start; gap: 10px; }
+.project-title h3 { min-width: 0; }
+.check { appearance: none; flex: none; width: 22px; height: 22px; margin: 1px 0 0; border: 2px solid var(--ink); border-radius: 5px; background: var(--sheet); cursor: pointer; display: grid; place-content: center; }
+.check:checked { background: var(--marker); border-color: var(--marker); }
+.check:checked::after { content: ''; width: 6px; height: 11px; border: solid var(--marker-ink); border-width: 0 2.5px 2.5px 0; transform: rotate(45deg) translate(-1px, -1px); }
+.project.is-done h3 { text-decoration: line-through; text-decoration-color: var(--done); text-decoration-thickness: 2px; }
+.project dl { margin: 0 0 0 32px; display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 6px 14px; }
+.project dt { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); padding-top: 4px; }
+.project dd { margin: 0; min-width: 0; }
+.ai-box { background: var(--ai-bg); border-radius: 10px; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+.ai-box h3 { color: var(--ai); }
+.ready { border-left: 4px solid var(--marker); padding: 2px 0 2px 14px; }
+.ready strong { font-family: var(--font-display); }
+@media (max-width: 560px) {
+  .phase { padding: 18px; }
+  .ai-panel { padding: 18px; }
+  .project dl { margin-left: 0; grid-template-columns: 1fr; gap: 2px; }
+  .project dd { margin-bottom: 8px; }
+  .map a { grid-template-columns: 2em minmax(0, 1fr) 5.5em; }
+}
+
+a:focus-visible, .check:focus-visible, button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+footer { color: var(--muted); font-size: 0.9rem; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: center; }
+button.reset { font: inherit; font-size: 0.85rem; background: none; border: 1px solid var(--line); color: var(--muted); padding: 4px 12px; border-radius: 6px; cursor: pointer; }
+@media (prefers-reduced-motion: reduce) { .bar span { transition: none; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <span class="eyebrow">do zero ao fullstack · ~11 meses · 1 a 2h por dia</span>
+    <h1>Trilha de <span class="mark">programação</span> em JavaScript</h1>
+    <p class="lede">Um caminho completo para quem nunca programou: começa instalando as ferramentas, passa pela lógica, pela web, pelo frontend com React e pelo backend com Node e banco de dados, e termina com um app fullstack no ar. Cada fase é feita de prática, e cada fase ensina a usar a IA do jeito certo para aquele momento.</p>
+    <div class="progress">
+      <div class="bar" aria-hidden="true"><span id="bar-fill"></span></div>
+      <span class="count" id="count"></span>
+    </div>
+  </header>
+
+  <section class="block" aria-labelledby="mapa">
+    <h2 id="mapa">Mapa da jornada</h2>
+    <nav class="map" id="map" aria-label="fases"></nav>
+    <span class="map-total" id="map-total"></span>
+  </section>
+
+  <section class="rhythm" aria-label="como estudar">
+    <div><h3>70% prática</h3><p>Para cada vídeo ou texto, escreva código. Ver alguém programar não ensina a programar.</p></div>
+    <div><h3>Todo dia um pouco</h3><p>1h por dia vale mais que 7h no sábado. Faça um exercício curto de aquecimento antes de cada sessão.</p></div>
+    <div><h3>Tudo no GitHub</h3><p>Todo exercício e projeto vai para o GitHub desde o primeiro dia. No fim, isso é o seu portfólio.</p></div>
+    <div><h3>Pense antes de digitar</h3><p>Escreva os passos em português no papel (pseudocódigo) e só depois traduza para código.</p></div>
+  </section>
+
+  <section class="ai-panel" id="ia" aria-labelledby="ia-titulo">
+    <span class="eyebrow">vale para a trilha inteira</span>
+    <h2 id="ia-titulo">Como usar IA sem atrapalhar o aprendizado</h2>
+    <p>A IA é o melhor professor particular que já existiu, mas também pode virar uma cola que impede você de aprender. A diferença está em como você pergunta.</p>
+    <ol class="ai-rules">
+      <li><span><strong>Tente sozinho primeiro.</strong> Fique pelo menos 20 minutos travado antes de perguntar. O esforço de travar é onde o cérebro aprende.</span></li>
+      <li><span><strong>Peça dica, não resposta.</strong> Comece a pergunta com "não me dê o código, só uma dica".</span></li>
+      <li><span><strong>Dê contexto completo.</strong> Cole o erro inteiro, o código, o que você esperava que acontecesse e o que você já tentou.</span></li>
+      <li><span><strong>Nunca use código que você não consegue explicar.</strong> Se a IA gerou, leia linha por linha e explique cada uma em voz alta. Se não conseguir, pergunte até entender.</span></li>
+      <li><span><strong>Explique de volta.</strong> Depois de aprender algo, explique para a IA com suas palavras e peça para ela corrigir o que você errou.</span></li>
+      <li><span><strong>Peça para ser testado.</strong> "Me faça 5 perguntas sobre arrays" ou "me dê 3 exercícios parecidos com esse".</span></li>
+      <li><span><strong>Desconfie.</strong> A IA erra com confiança. Confira na documentação (MDN, react.dev) e rode o código para ver se funciona.</span></li>
+    </ol>
+    <h3>O papel da IA muda conforme você avança</h3>
+    <div class="levels">
+      <div><span class="pill">fases 0 a 1</span><strong>Professor</strong><span>Só explica e dá dicas. Autocompletar de código (Copilot, Cursor) <em>desligado</em>.</span></div>
+      <div><span class="pill">fases 2 a 4</span><strong>Revisor</strong><span>Você escreve tudo; a IA revisa, explica erros e sugere melhorias.</span></div>
+      <div><span class="pill">fases 5 a 7</span><strong>Dupla</strong><span>Pode gerar partes repetitivas que você já sabe fazer. Autocompletar liberado.</span></div>
+      <div><span class="pill">fases 8 a 10</span><strong>Equipe</strong><span>Agentes como o Claude Code fazem tarefas inteiras; você planeja, revisa cada mudança e testa.</span></div>
+    </div>
+    <div class="prompt">
+      <div class="prompt-head"><h3>Prompt de professor (cole no início da conversa)</h3><button class="copy" type="button" data-copy="tutor">copiar</button></div>
+      <pre id="tutor">Você é meu professor de programação. Estou aprendendo JavaScript do zero.
+Regras:
+1. Nunca me dê a solução completa de um exercício.
+2. Dê uma dica por vez, começando pela mais sutil. Só dê a próxima se eu pedir.
+3. Quando eu mostrar código com erro, me faça uma pergunta que me leve a encontrar o erro antes de explicar.
+4. Explique em português simples, com analogias do dia a dia.
+5. No fim de cada explicação, me faça uma pergunta curta para ver se entendi.</pre>
+    </div>
+    <p class="muted">Dica: no Claude, crie um Projeto chamado "Estudos JS" e cole esse texto nas instruções do projeto. Assim toda conversa já começa com essas regras.</p>
+  </section>
+
+  <div id="phases"></div>
+
+  <section class="phase" aria-labelledby="mentor">
+    <span class="eyebrow">para quem acompanha</span>
+    <h2 id="mentor">Como ajudar sem atrapalhar</h2>
+    <ul>
+      <li>Peça para ele explicar o código em voz alta, linha por linha. Se não souber explicar, ainda não entendeu.</li>
+      <li>Travou mais de 30 minutos? Dê uma dica pequena, nunca a resposta inteira.</li>
+      <li>Depois que funcionar, desafie: "e se o número for negativo?", "e se a lista estiver vazia?", "e se a API cair?".</li>
+      <li>Uma vez por mês, abra o GitHub dele e faça um code review de verdade, com comentários na PR.</li>
+      <li>Não pule fases. Quem vai para React sem saber lógica e DOM trava logo em seguida.</li>
+    </ul>
+  </section>
+
+  <footer>
+    <span>O progresso fica salvo só neste navegador.</span>
+    <button class="reset" id="reset" type="button">limpar progresso</button>
+  </footer>
+</div>
+
+<script>
+const PHASES = [
+  {
+    id: 'f0', n: 0, weeks: 1, title: 'Ambiente de programação',
+    goal: 'Deixar o computador pronto e fazer o primeiro programa rodar e ir para o GitHub.',
+    concepts: ['VS Code', 'Node.js', 'terminal', 'Git', 'GitHub', 'DevTools do Chrome'],
+    practice: [
+      'Windows: instale o Git for Windows e use o "Git Bash" como terminal dentro do VS Code. Mac: use o Terminal normal.',
+      'Treine os comandos do terminal até ficarem automáticos: `pwd`, `ls`, `cd`, `cd ..`, `mkdir`, `touch`, `clear`.',
+      'Abra o Chrome, aperte F12, vá na aba Console e digite `2 + 2`. Esse console é um lugar para testar JavaScript.'
+    ],
+    items: [
+      { t: 'Instalar o VS Code e extensões', d: 'Baixe em code.visualstudio.com. Instale as extensões Prettier, ESLint, Error Lens e Live Server.', h: 'Ative "Format On Save" nas configurações para o Prettier arrumar o código ao salvar.' },
+      { t: 'Instalar o Node.js', d: 'Baixe a versão LTS em nodejs.org. No terminal, rode `node -v` e `npm -v`; os dois devem mostrar um número de versão.', h: 'Se o comando não for encontrado, feche e abra o terminal de novo.' },
+      { t: 'Configurar Git e GitHub', d: 'Instale o Git, crie uma conta no GitHub e configure seu nome e e-mail com `git config --global user.name "Seu Nome"` e `git config --global user.email "seu@email.com"`.', h: 'Use o mesmo e-mail da conta do GitHub.' },
+      { t: 'Configurar a IA como professor', d: 'Crie uma conta no Claude (ou outra IA), crie um projeto "Estudos JS" e cole o prompt de professor desta página.', h: 'Teste perguntando "o que é uma variável?" e veja se ela responde com uma pergunta no final.' },
+      { t: 'Primeiro programa versionado', d: 'Crie a pasta `estudos-js`, dentro dela `ola.js` com `console.log("olá, mundo")`, rode com `node ola.js`, crie um repositório no GitHub e envie com `git add`, `git commit` e `git push`.', h: 'O GitHub mostra os comandos exatos depois que você cria o repositório vazio.', x: 'Peça para a IA explicar o que cada um dos comandos git fez, um por um.' }
+    ],
+    ai: { level: 'professor', text: 'Use a IA para entender erros de instalação. Cole a mensagem de erro inteira e diga qual sistema operacional você usa.', prompt: 'Estou no Windows 11 instalando o Node.js. Rodei `node -v` no terminal e apareceu este erro: [cole o erro]. O que significa e como resolvo? Explique cada passo.' },
+    resources: [['Curso em Vídeo: Git e GitHub (Guanabara)', 'https://www.cursoemvideo.com'], ['Documentação do VS Code', 'https://code.visualstudio.com/docs']],
+    ready: 'você cria uma pasta, um arquivo `.js`, roda pelo terminal e envia para o GitHub sem consultar nada.'
+  },
+  {
+    id: 'f1', n: 1, weeks: 8, title: 'Lógica de programação com JavaScript',
+    goal: 'A base de tudo: aprender a resolver problemas passo a passo. Tudo roda no terminal com `node`.',
+    concepts: ['variáveis', 'tipos', 'operadores', 'if / else', 'for / while', 'funções', 'arrays', 'strings', 'objetos', 'map / filter / reduce'],
+    practice: [
+      'Todo dia, antes de estudar, resolva 1 exercício no beecrowd (iniciante) ou no Codewars (nível 8kyu).',
+      'Semanas 1–2: variáveis e if/else. Semanas 3–4: loops e funções. Semanas 5–6: arrays e strings. Semanas 7–8: objetos e o projeto final.',
+      'Para cada conceito, escreva pelo menos 5 exercícios curtos seus antes de partir para o projeto.',
+      'Refaça um exercício antigo uma semana depois, sem olhar a solução.'
+    ],
+    items: [
+      { t: 'Calculadora de IMC e conversores', d: 'Calcule o IMC (peso ÷ altura²) com 1 casa decimal. Converta °C para °F e 125 minutos para "2h05min".', h: '`altura ** 2`, `valor.toFixed(1)`, `Math.floor(125 / 60)` e `125 % 60`.' },
+      { t: 'Pedra, papel e tesoura', d: 'O jogador escolhe numa variável, o computador sorteia. Mostre as jogadas e quem venceu.', h: '`Math.floor(Math.random() * 3)` sorteia 0, 1 ou 2.', x: 'Jogue 1000 partidas automáticas e mostre a porcentagem de vitórias de cada lado.' },
+      { t: 'FizzBuzz', d: 'De 1 a 100: múltiplo de 3 imprime "Fizz", de 5 imprime "Buzz", dos dois imprime "FizzBuzz", os outros imprimem o número.', h: 'A ordem dos `if` importa. Qual condição tem que vir primeiro?' },
+      { t: 'Adivinhe o número (robô)', d: 'O computador sorteia de 1 a 100 e um "robô" chuta sempre o meio do intervalo, ajustando com "maior" ou "menor". Mostre cada tentativa.', h: 'Guarde `minimo` e `maximo` e use `while` até acertar.', x: 'Por que nunca passa de 7 tentativas? Pesquise "busca binária".' },
+      { t: 'Caixa eletrônico', d: 'Função `sacar(valor)` que mostra quantas notas de 200, 100, 50, 20, 10, 5 e 2 entregar, usando o mínimo de notas.', h: 'Comece pela maior nota: quantas cabem (`Math.floor`) e quanto sobra (`%`).', x: 'Avise quando o valor não pode ser sacado, como 3 ou 1.' },
+      { t: 'Estatísticas da turma', d: 'Com um array de 10 notas, mostre média, maior, menor, quantos passaram (≥ 7) e as notas em ordem, primeiro sem `.sort()`.', h: 'Uma função para cada cálculo. Para ordenar, pesquise "bubble sort".' },
+      { t: 'Cifra de César', d: 'Funções `criptografar(texto, chave)` e `descriptografar` que deslocam cada letra no alfabeto.', h: 'Use uma string com o alfabeto, `indexOf` e `% 26` para dar a volta.', x: 'Quebre uma mensagem sem saber a chave testando as 26 possibilidades.' },
+      { t: 'Carrinho de compras', d: 'Array de objetos `{ nome, preco, qtd }` com funções `adicionar`, `remover` e `total`. Acima de R$ 200, 10% de desconto. Imprima uma nota fiscal.', h: 'Se o produto já está no carrinho, aumente a quantidade em vez de duplicar.' },
+      { t: 'Jogo da velha no terminal', d: 'Tabuleiro como matriz 3×3. Funções para desenhar, jogar e verificar vitória (linhas, colunas, diagonais) ou velha.', h: 'Faça primeiro `desenhar()`, depois `jogar(linha, coluna)`, e a verificação de vitória por último.', x: 'Use o pacote `prompt-sync` para jogar de verdade digitando no terminal.' }
+    ],
+    ai: { level: 'professor', text: 'Autocompletar desligado. A IA só explica conceitos e dá dicas. Quando terminar um exercício sozinho, peça para ela mostrar outra forma de resolver e compare.', prompt: 'Resolvi o FizzBuzz assim: [cole seu código]. Funciona. Não reescreva para mim: me diga 2 coisas que eu poderia melhorar e me faça uma pergunta que me ajude a descobrir como.' },
+    resources: [['javascript.info (tem em português)', 'https://pt.javascript.info'], ['beecrowd: exercícios em português', 'https://www.beecrowd.com.br'], ['Codewars', 'https://www.codewars.com'], ['Curso em Vídeo: JavaScript', 'https://www.cursoemvideo.com']],
+    ready: 'você resolve um exercício novo de nível iniciante no beecrowd em menos de 30 minutos, sem ajuda.'
+  },
+  {
+    id: 'f2', n: 2, weeks: 4, title: 'HTML e CSS',
+    goal: 'Construir páginas: HTML é a estrutura, CSS é a aparência. Ainda sem JavaScript.',
+    concepts: ['tags semânticas', 'formulários', 'seletores', 'box model', 'flexbox', 'grid', 'responsivo', 'media queries', 'GitHub Pages'],
+    practice: [
+      'Todo dia, recrie com HTML e CSS um pedacinho de um site que você usa: um botão, um card, um menu.',
+      'Jogue Flexbox Froggy e Grid Garden até o fim. Parece brincadeira, mas fixa o conteúdo.',
+      'Inspecione sites reais com o DevTools (F12 → Elements) e mude o CSS ao vivo para ver o efeito.'
+    ],
+    items: [
+      { t: 'Página de currículo', d: 'Uma página só com HTML: nome, foto, sobre mim, lista de habilidades, tabela de formação e um formulário de contato.', h: 'Use `header`, `main`, `section` e `footer` em vez de `div` para tudo.' },
+      { t: 'Cartão de perfil com CSS', d: 'Estilize o currículo: fontes do Google Fonts, cores, espaçamento e um card centralizado na tela.', h: 'Para centralizar: `display: flex; justify-content: center; align-items: center;` no elemento pai.' },
+      { t: 'Desafios do Frontend Mentor', d: 'Faça 3 desafios "Newbie" do Frontend Mentor reproduzindo o design o mais fiel possível.', h: 'Eles fornecem as imagens e o design. Compare o seu resultado lado a lado com o original.' },
+      { t: 'Landing page responsiva', d: 'Página de um produto inventado com menu, hero, 3 cards de benefícios, depoimentos e rodapé. Precisa funcionar no celular e no computador.', h: 'Comece pelo layout do celular (mobile first) e use media queries para telas maiores.', x: 'Publique no GitHub Pages e mande o link para alguém abrir no celular.' }
+    ],
+    ai: { level: 'revisor', text: 'Você escreve todo o HTML e CSS. Depois peça para a IA revisar acessibilidade e semântica. Quando um layout não funcionar, descreva o que você queria e o que aconteceu.', prompt: 'Este é o HTML e CSS da minha landing page: [cole]. Revise como um desenvolvedor sênior: semântica do HTML, acessibilidade e responsividade. Liste os problemas por ordem de importância, mas não reescreva o código inteiro.' },
+    resources: [['MDN: aprenda desenvolvimento web', 'https://developer.mozilla.org/pt-BR/docs/Learn'], ['Flexbox Froggy', 'https://flexboxfroggy.com/#pt-br'], ['Grid Garden', 'https://cssgridgarden.com/#pt-br'], ['Frontend Mentor', 'https://www.frontendmentor.io']],
+    ready: 'você olha a tela de um site simples e consegue reproduzir o layout com flexbox ou grid.'
+  },
+  {
+    id: 'f3', n: 3, weeks: 4, title: 'JavaScript no navegador',
+    goal: 'Juntar a lógica da fase 1 com as páginas da fase 2: botões que funcionam, listas que mudam, dados que ficam salvos.',
+    concepts: ['DOM', 'querySelector', 'eventos', 'addEventListener', 'createElement', 'classList', 'formulários', 'localStorage'],
+    practice: [
+      'Pegue 3 projetos da fase 1 e dê uma interface na web para eles (IMC, pedra papel tesoura, cifra de César).',
+      'Todo dia, um mini exercício de DOM: um botão que muda a cor do fundo, um contador de caracteres num campo de texto, um menu que abre e fecha.',
+      'Use o Debugger do DevTools (aba Sources, breakpoints) em vez de só `console.log`.'
+    ],
+    items: [
+      { t: 'Calculadora', d: 'Calculadora com botões numéricos, operações básicas, limpar e apagar o último dígito.', h: 'Um único `addEventListener` no container dos botões, lendo `event.target`, evita escrever um evento por botão.' },
+      { t: 'Lista de tarefas', d: 'Adicionar, marcar como feita, editar, apagar e filtrar (todas, pendentes, feitas). Ao recarregar a página, as tarefas continuam lá.', h: 'Guarde um array de objetos e redesenhe a lista a partir dele. Salve com `localStorage.setItem` e `JSON.stringify`.' },
+      { t: 'Jogo da memória', d: '8 pares de cartas embaralhadas. Vira duas; se iguais, ficam abertas; senão, viram de volta. Conte jogadas e tempo.', h: 'Reaproveite o embaralhamento Fisher-Yates. Bloqueie cliques enquanto duas cartas estão viradas.' },
+      { t: 'Quiz com placar', d: '10 perguntas de múltipla escolha, uma por vez, com placar no fim e recorde salvo no navegador.', h: 'As perguntas ficam num array de objetos `{ pergunta, opcoes, correta }`.', x: 'Adicione um cronômetro de 15 segundos por pergunta.' }
+    ],
+    ai: { level: 'revisor', text: 'Ainda é você quem escreve o código. Use a IA para entender por que algo não acontece na tela e para pedir code review depois que o projeto estiver pronto.', prompt: 'Cliquei no botão "adicionar" e nada acontece. Não aparece erro no console. Meu HTML: [cole]. Meu JS: [cole]. Me faça perguntas para eu mesmo descobrir o problema, uma por vez.' },
+    resources: [['MDN: manipulando documentos (DOM)', 'https://developer.mozilla.org/pt-BR/docs/Learn/JavaScript/Client-side_web_APIs/Manipulating_documents'], ['javascript.info: documento e eventos', 'https://pt.javascript.info/document']],
+    ready: 'você constrói a lista de tarefas do zero, sem consultar o código antigo, em uma tarde.'
+  },
+  {
+    id: 'f4', n: 4, weeks: 3, title: 'Código assíncrono e APIs',
+    goal: 'Buscar dados reais da internet: CEP, clima, cotações. É assim que quase todo app funciona.',
+    concepts: ['HTTP', 'JSON', 'Promise', 'fetch', 'async / await', 'try / catch', 'status code', 'loading e erro', 'setTimeout'],
+    practice: [
+      'Abra as URLs das APIs direto no navegador e leia o JSON antes de escrever código.',
+      'Para cada app, trate 3 estados: carregando, erro e sucesso. Teste desligando o Wi-Fi.',
+      'Exercício: reescreva um `fetch` com `.then()` usando `async/await`, e vice-versa.'
+    ],
+    items: [
+      { t: 'Buscador de CEP', d: 'Digite um CEP e preencha rua, bairro, cidade e estado usando a ViaCEP (`https://viacep.com.br/ws/01001000/json/`).', h: 'Valide que o CEP tem 8 dígitos antes de chamar a API. A ViaCEP retorna `{ "erro": true }` para CEP inexistente.' },
+      { t: 'App do clima', d: 'Mostre temperatura atual e previsão de 5 dias da sua cidade usando a Open-Meteo (não precisa de chave).', h: 'Primeiro descubra latitude e longitude pela API de geocoding da própria Open-Meteo.', x: 'Use `navigator.geolocation` para pegar a localização do usuário.' },
+      { t: 'Pokédex', d: 'Liste os Pokémon da PokéAPI com imagem, busca por nome e paginação de 20 em 20. Clicar abre os detalhes.', h: 'A lista vem só com nome e URL; cada detalhe é outro `fetch`. Pesquise `Promise.all`.' },
+      { t: 'Conversor de moedas', d: 'Converta reais para dólar, euro e bitcoin com a cotação do dia da AwesomeAPI (`economia.awesomeapi.com.br`).', h: 'Atualize a cotação automaticamente a cada 60 segundos com `setInterval`.' }
+    ],
+    ai: { level: 'revisor', text: 'Peça para a IA explicar o JSON de uma API e os erros de rede, como CORS e 404. Ainda não peça para ela escrever o `fetch` por você.', prompt: 'Recebi este JSON da PokéAPI: [cole um pedaço]. Explique a estrutura como se fosse uma árvore e me diga qual caminho uso para pegar a imagem do Pokémon. Não escreva o código.' },
+    resources: [['MDN: usando Fetch', 'https://developer.mozilla.org/pt-BR/docs/Web/API/Fetch_API/Using_Fetch'], ['ViaCEP', 'https://viacep.com.br'], ['Open-Meteo', 'https://open-meteo.com'], ['PokéAPI', 'https://pokeapi.co']],
+    ready: 'você consegue ler a documentação de uma API pública que nunca viu e montar uma página com os dados dela.'
+  },
+  {
+    id: 'f5', n: 5, weeks: 3, title: 'Ferramentas profissionais',
+    goal: 'Trabalhar como um time de verdade: pacotes, módulos, TypeScript, testes e Git com branches.',
+    concepts: ['npm', 'package.json', 'import / export', 'Vite', 'TypeScript', 'Vitest', 'git branch', 'pull request', 'ESLint / Prettier'],
+    practice: [
+      'A partir de agora, todo projeto começa com `npm create vite@latest`.',
+      'Todo projeto novo usa branch: crie uma branch por funcionalidade e faça uma pull request para a `main`, mesmo trabalhando sozinho.',
+      'Escreva os commits como frases claras: "adiciona filtro de tarefas feitas".'
+    ],
+    items: [
+      { t: 'Migrar a lista de tarefas para Vite', d: 'Recrie a lista de tarefas da fase 3 num projeto Vite, separando o código em módulos (`storage.js`, `render.js`, `main.js`).', h: 'Cada arquivo exporta só o que os outros precisam usar.' },
+      { t: 'Lógica em TypeScript com testes', d: 'Reescreva o caixa eletrônico, a cifra de César e as estatísticas da turma em TypeScript, com testes no Vitest.', h: 'Pense nos casos estranhos: lista vazia, valor negativo, texto com acento.' },
+      { t: 'Fluxo de pull request', d: 'Num repositório seu, crie uma branch, faça uma melhoria, abra a PR no GitHub, peça para alguém (ou para a IA) revisar e faça o merge.', h: 'Escreva na descrição da PR o que mudou e como testar.', x: 'Encontre um projeto open source com a etiqueta "good first issue" e leia como eles pedem contribuições.' }
+    ],
+    ai: { level: 'dupla', text: 'Agora pode ligar o autocompletar (GitHub Copilot é grátis para estudantes) e pedir para a IA gerar configurações e código repetitivo. A regra continua: você precisa conseguir explicar cada linha.', prompt: 'Escrevi esta função em TypeScript: [cole]. Liste casos de teste que eu deveria escrever, incluindo os casos de borda. Eu mesmo vou escrever os testes; depois te mostro para você revisar.' },
+    resources: [['Documentação do TypeScript', 'https://www.typescriptlang.org/pt/docs/'], ['Vite', 'https://vite.dev'], ['Vitest', 'https://vitest.dev'], ['Learn Git Branching', 'https://learngitbranching.js.org/?locale=pt_BR']],
+    ready: 'você cria um projeto do zero com Vite e TypeScript, escreve testes e entrega por pull request.'
+  },
+  {
+    id: 'f6', n: 6, weeks: 6, title: 'Frontend com React',
+    goal: 'Construir interfaces maiores com componentes. React é o que a maioria das vagas de frontend pede.',
+    concepts: ['componentes', 'JSX', 'props', 'useState', 'useEffect', 'listas e keys', 'formulários controlados', 'React Router', 'Tailwind CSS'],
+    practice: [
+      'Faça os tutoriais oficiais do react.dev inteiros, digitando cada exemplo.',
+      'Antes de cada projeto, desenhe a tela no papel e circule os componentes. Decida onde fica cada estado.',
+      'Toda semana, refaça um projeto antigo (quiz, Pokédex, memória) em React.'
+    ],
+    items: [
+      { t: 'Lista de tarefas em React', d: 'A mesma lista de tarefas, agora com componentes `TaskForm`, `TaskList`, `TaskItem` e `Filters`.', h: 'O estado das tarefas fica no componente pai e desce por props.' },
+      { t: 'Catálogo de filmes', d: 'Busca de filmes com a API do TMDB, página de detalhes com React Router e lista de favoritos salva no navegador.', h: 'Crie a chave de API no site do TMDB. Use `useEffect` para buscar quando a busca mudar.', x: 'Adicione um "debounce" para não chamar a API a cada letra digitada.' },
+      { t: 'Controle de gastos', d: 'Cadastre gastos com valor, categoria e data. Mostre total do mês, filtro por categoria e um gráfico por categoria.', h: 'Use uma biblioteca de gráficos como Recharts. Valores em reais com `Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" })`.' },
+      { t: 'Quadro Kanban', d: 'Colunas "a fazer", "fazendo" e "feito" com cartões que se movem entre colunas e ficam salvos.', h: 'Comece movendo com botões. Arrastar e soltar é o extra.', x: 'Arrastar e soltar com a biblioteca dnd-kit.' }
+    ],
+    ai: { level: 'dupla', text: 'Use a IA como colega que conhece React. Peça explicações de conceitos difíceis (por que o componente renderiza duas vezes, por que o `useEffect` entra em loop) e revisão da estrutura de componentes.', prompt: 'Vou construir um controle de gastos em React. As telas são: [descreva]. Antes de eu programar, discuta comigo como dividir em componentes e onde deve ficar cada estado. Não escreva código ainda.' },
+    resources: [['react.dev (documentação oficial em português)', 'https://pt-br.react.dev/learn'], ['Tailwind CSS', 'https://tailwindcss.com/docs'], ['TMDB API', 'https://developer.themoviedb.org']],
+    ready: 'você monta um app React com 3 telas, rotas e dados de uma API sem seguir tutorial.'
+  },
+  {
+    id: 'f7', n: 7, weeks: 5, title: 'Backend com Node.js',
+    goal: 'Criar o outro lado: o servidor que recebe pedidos, aplica regras e devolve dados.',
+    concepts: ['HTTP no servidor', 'REST', 'rotas', 'GET / POST / PUT / DELETE', 'Express ou Fastify', 'middleware', 'validação com zod', 'variáveis de ambiente', 'CORS'],
+    practice: [
+      'Teste cada rota com o Thunder Client (extensão do VS Code) ou o Insomnia antes de ligar no frontend.',
+      'Para cada rota, pense: que dados entram, o que pode dar errado e que status code devolver.',
+      'Leia os logs do servidor quando algo falha. O erro quase sempre está escrito lá.'
+    ],
+    items: [
+      { t: 'Servidor sem framework', d: 'Com o módulo `node:http`, crie um servidor que responde `/` com um texto e `/hora` com a hora atual em JSON.', h: 'O objetivo é ver o que o Express faz por você por baixo dos panos.' },
+      { t: 'API de tarefas', d: 'API REST com Express: listar, criar, editar e apagar tarefas (dados em memória). Valide o corpo da requisição com zod e devolva 400 quando vier errado.', h: 'Siga o padrão `GET /tarefas`, `POST /tarefas`, `PUT /tarefas/:id`, `DELETE /tarefas/:id`.' },
+      { t: 'Encurtador de links', d: '`POST /links` recebe uma URL longa e devolve um código curto. `GET /:codigo` redireciona para a URL original e conta os acessos.', h: 'Gere códigos aleatórios de 6 caracteres e verifique se já existem.' },
+      { t: 'Ligar o frontend no seu backend', d: 'Faça a lista de tarefas em React usar a sua API em vez do localStorage.', h: 'Vai aparecer erro de CORS. Pesquise o que é antes de resolver.' }
+    ],
+    ai: { level: 'dupla', text: 'Peça para a IA explicar conceitos de HTTP e revisar a segurança e a organização da sua API. Pode pedir para ela gerar a estrutura inicial do projeto, mas escreva as regras de negócio você mesmo.', prompt: 'Esta é minha API de tarefas em Express: [cole]. Revise como se fosse um code review de empresa: status codes, validação, tratamento de erros e organização. Explique o porquê de cada sugestão.' },
+    resources: [['Documentação do Node.js', 'https://nodejs.org/pt/learn'], ['Express', 'https://expressjs.com/pt-br/'], ['MDN: visão geral do HTTP', 'https://developer.mozilla.org/pt-BR/docs/Web/HTTP/Overview'], ['zod', 'https://zod.dev']],
+    ready: 'você cria uma API com CRUD completo, validação e erros bem tratados, e um frontend que usa ela.'
+  },
+  {
+    id: 'f8', n: 8, weeks: 5, title: 'Banco de dados e autenticação',
+    goal: 'Guardar dados de verdade e saber quem é o usuário. Daqui em diante, os apps têm cara de produto.',
+    concepts: ['SQL', 'SELECT / INSERT / UPDATE / DELETE', 'JOIN', 'PostgreSQL', 'Prisma', 'migrations', 'hash de senha (bcrypt)', 'sessão e JWT', 'segurança básica'],
+    practice: [
+      'Faça todas as lições do SQLBolt antes de usar qualquer ORM.',
+      'Crie um banco PostgreSQL grátis no Neon ou no Supabase e escreva consultas direto no painel deles.',
+      'Para cada tabela, desenhe no papel os campos e como ela se liga às outras.'
+    ],
+    items: [
+      { t: 'Exercícios de SQL', d: 'Termine o SQLBolt e depois modele um banco de uma escola (alunos, turmas, notas) com 5 consultas úteis, como a média por turma.', h: 'JOIN é o assunto mais importante. Pratique até ficar natural.' },
+      { t: 'API de tarefas com banco', d: 'Troque a memória da sua API da fase 7 por PostgreSQL usando Prisma, com migrations.', h: 'A URL do banco fica no `.env` e o `.env` nunca vai para o GitHub (coloque no `.gitignore`).' },
+      { t: 'Blog com usuários', d: 'API com cadastro e login, senha salva com bcrypt, posts e comentários. Só o autor pode editar ou apagar o próprio post.', h: 'Separe autenticação (quem é você) de autorização (o que você pode fazer).', x: 'Adicione "esqueci minha senha" com um token que expira.' }
+    ],
+    ai: { level: 'equipe', text: 'Pode começar a usar um agente como o Claude Code para tarefas bem definidas, como "crie a migration para a tabela de comentários". Leia cada mudança antes de aceitar. Em segurança e autenticação, peça sempre para a IA explicar os riscos.', prompt: 'Implementei login com bcrypt e JWT: [cole]. Faça uma revisão de segurança: que ataques são possíveis contra este código e como cada um funciona? Explique antes de sugerir a correção.' },
+    resources: [['SQLBolt', 'https://sqlbolt.com'], ['Prisma', 'https://www.prisma.io/docs'], ['Neon (Postgres grátis)', 'https://neon.tech'], ['OWASP Top 10', 'https://owasp.org/www-project-top-ten/']],
+    ready: 'você cria um app com login onde cada usuário só vê e edita os próprios dados.'
+  },
+  {
+    id: 'f9', n: 9, weeks: 6, title: 'Fullstack com Next.js e deploy',
+    goal: 'Juntar frontend e backend num só projeto, colocar no ar e manter funcionando como um produto.',
+    concepts: ['Next.js App Router', 'server components', 'server actions', 'route handlers', 'deploy na Vercel', 'GitHub Actions', 'testes', 'Docker básico'],
+    practice: [
+      'Faça o curso oficial gratuito "Learn Next.js" no site do Next.js do início ao fim.',
+      'Configure o deploy automático: todo push na `main` publica sozinho.',
+      'Peça para amigos usarem seu app e anote cada problema que eles encontrarem.'
+    ],
+    items: [
+      { t: 'Portfólio em Next.js', d: 'Seu site pessoal com sobre você, lista de projetos (com links para o GitHub e para o app no ar) e contato. No ar na Vercel.', h: 'Este site vai no seu currículo e no LinkedIn. Capriche.' },
+      { t: 'Projeto fullstack final', d: 'Um app completo com login, banco de dados e deploy. Ideias: controle financeiro pessoal, agenda de um salão de beleza, mural de recados da turma, catálogo de uma loja do bairro.', h: 'Escreva primeiro uma lista do que o app faz (requisitos) e divida em tarefas pequenas, como uma empresa faria.', x: 'Faça para alguém real usar, como um comércio da família ou da vizinhança.' },
+      { t: 'Testes e integração contínua', d: 'Adicione testes no projeto final e um GitHub Actions que roda lint e testes em toda pull request.', h: 'A PR só pode ser mergeada se os testes passarem.' }
+    ],
+    ai: { level: 'equipe', text: 'Trabalhe com agentes como um líder de equipe: escreva um plano, peça uma tarefa de cada vez, revise o diff e rode os testes. Peça para a IA explicar qualquer parte do Next.js que você não entendeu antes de aceitar.', prompt: 'Quero construir um app de controle financeiro com Next.js, Prisma e login. Me ajude a escrever os requisitos e dividir em tarefas pequenas, em ordem, cada uma com o critério de "pronto". Ainda não escreva código.' },
+    resources: [['Learn Next.js (curso oficial)', 'https://nextjs.org/learn'], ['Vercel', 'https://vercel.com/docs'], ['GitHub Actions', 'https://docs.github.com/pt/actions']],
+    ready: 'você tem um app fullstack no ar, com login e banco, que outras pessoas usam.'
+  },
+  {
+    id: 'f10', n: 10, weeks: 0, title: 'O futuro',
+    goal: 'A trilha acaba, o aprendizado não. Agora é escolher um caminho, aprofundar e chegar ao primeiro trabalho.',
+    concepts: ['estruturas de dados', 'algoritmos', 'Big O', 'inglês técnico', 'open source', 'portfólio', 'entrevistas', 'apps com IA'],
+    practice: [
+      'Escolha uma direção para aprofundar: frontend, backend, mobile (React Native) ou fullstack.',
+      'Estude o básico de ciência da computação: listas, pilhas, filas, árvores, hash e complexidade (Big O).',
+      'Inglês técnico todo dia: documentação, vídeos e issues no GitHub. A maior parte do conteúdo bom está em inglês.',
+      'Aprenda a construir apps que usam IA por dentro, chamando uma API como a do Claude. Esse é um dos caminhos com mais demanda.'
+    ],
+    items: [
+      { t: 'Portfólio com 3 projetos fortes', d: 'Três projetos no ar, cada um com README explicando o problema, as tecnologias, prints e como rodar.', h: 'Qualidade conta mais que quantidade. Três bons valem mais que vinte tutoriais.' },
+      { t: 'Primeira contribuição open source', d: 'Uma pull request aceita num projeto que não é seu.', h: 'Correções de documentação e traduções contam e são um ótimo começo.' },
+      { t: 'Preparação para entrevistas', d: 'Resolva 30 problemas fáceis no LeetCode ou NeetCode e treine explicar em voz alta enquanto resolve.', h: 'Peça para a IA fazer uma entrevista simulada com você.' },
+      { t: 'Um app que usa IA', d: 'Um projeto que chama a API de um modelo de IA, como um corretor de redação ou um assistente para os estudos.', h: 'A chave da API fica só no servidor, nunca no frontend.' },
+      { t: 'Primeiro trabalho', d: 'LinkedIn atualizado, currículo de uma página e candidaturas para estágio ou vagas júnior, ou um primeiro freela para alguém conhecido.', h: 'Um freela pequeno feito para um comércio real já conta como experiência.' }
+    ],
+    ai: { level: 'equipe', text: 'A IA vira ferramenta de trabalho. O que diferencia um bom dev é saber o que pedir, julgar se o resultado está certo e entender o sistema inteiro. Tudo o que você aprendeu nas fases anteriores é o que permite isso.', prompt: 'Faça uma entrevista técnica simulada para uma vaga de desenvolvedor júnior fullstack JavaScript. Uma pergunta por vez, misturando conceitos e um problema de lógica. No fim, me dê uma avaliação honesta e o que estudar.' },
+    resources: [['roadmap.sh: trilhas por carreira', 'https://roadmap.sh'], ['NeetCode', 'https://neetcode.io'], ['The Odin Project', 'https://www.theodinproject.com'], ['Documentação da API do Claude', 'https://docs.claude.com']],
+    ready: 'quando você aprende sozinho uma tecnologia nova lendo a documentação. A partir daí, nenhuma ferramenta nova vai te assustar.'
+  }
+];
+
+const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const fmt = (s) => esc(s).replace(/`([^`]+)`/g, '<code>$1</code>');
+
+const KEY = 'trilha-js-completa-v2';
+let done = {};
+try { done = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { done = {}; }
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(done)); } catch (e) {} };
+
+const maxWeeks = Math.max(...PHASES.map((p) => p.weeks));
+const totalWeeks = PHASES.reduce((s, p) => s + p.weeks, 0);
+
+document.getElementById('map').innerHTML = PHASES.map((p) => `
+  <a href="#${p.id}" data-phase="${p.id}">
+    <span class="num">${String(p.n).padStart(2, '0')}</span>
+    <span class="name"><span>${esc(p.title)}</span><span class="track"><b style="width:0"></b></span></span>
+    <span class="wk">${p.weeks ? p.weeks + (p.weeks === 1 ? ' semana' : ' semanas') : 'contínuo'}</span>
+  </a>`).join('');
+document.getElementById('map-total').textContent = `total: ${totalWeeks} semanas (~${Math.round(totalWeeks / 4.3)} meses) estudando 5 dias por semana`;
+
+document.getElementById('phases').innerHTML = PHASES.map((p) => `
+  <section class="phase" id="${p.id}" aria-labelledby="${p.id}-t" style="margin-bottom:32px">
+    <div class="phase-head">
+      <span class="eyebrow">fase ${p.n} · ${p.weeks ? '~' + p.weeks + (p.weeks === 1 ? ' semana' : ' semanas') : 'contínuo'}</span>
+      <h2 id="${p.id}-t">${esc(p.title)}</h2>
+      <p>${fmt(p.goal)}</p>
+    </div>
+    <div class="concepts">${p.concepts.map((c) => `<code>${esc(c)}</code>`).join('')}</div>
+    <div class="block"><h3>Prática diária</h3><ul>${p.practice.map((x) => `<li>${fmt(x)}</li>`).join('')}</ul></div>
+    <div class="block">
+      <h3>Projetos</h3>
+      ${p.items.map((it, i) => {
+        const id = `${p.id}-${i}`;
+        return `<article class="project" data-id="${id}">
+          <div class="project-title"><input type="checkbox" class="check" id="chk-${id}" aria-label="marcar como feito: ${esc(it.t)}"><h3>${esc(it.t)}</h3></div>
+          <dl>
+            <dt>O que fazer</dt><dd>${fmt(it.d)}</dd>
+            <dt>Dica</dt><dd>${fmt(it.h)}</dd>
+            ${it.x ? `<dt>Extra</dt><dd>${fmt(it.x)}</dd>` : ''}
+          </dl>
+        </article>`;
+      }).join('')}
+    </div>
+    <div class="ai-box">
+      <span class="pill">ia: ${esc(p.ai.level)}</span>
+      <h3>Como usar IA nesta fase</h3>
+      <p>${fmt(p.ai.text)}</p>
+      <div class="prompt">
+        <div class="prompt-head"><span class="eyebrow">exemplo de prompt</span><button class="copy" type="button" data-copy="${p.id}-prompt">copiar</button></div>
+        <pre id="${p.id}-prompt">${esc(p.ai.prompt)}</pre>
+      </div>
+    </div>
+    <div class="block"><h3>Onde estudar</h3><ul>${p.resources.map(([t, u]) => `<li><a href="${u}" target="_blank" rel="noopener">${esc(t)}</a></li>`).join('')}</ul></div>
+    <p class="ready"><strong>Você está pronto para a próxima fase quando</strong> ${fmt(p.ready)}</p>
+  </section>`).join('');
+
+const projects = [...document.querySelectorAll('.project')];
+
+function render() {
+  let total = 0;
+  projects.forEach((el) => {
+    const isDone = !!done[el.dataset.id];
+    el.classList.toggle('is-done', isDone);
+    el.querySelector('.check').checked = isDone;
+    if (isDone) total++;
+  });
+  document.getElementById('count').textContent = `${total} de ${projects.length} itens feitos`;
+  document.getElementById('bar-fill').style.width = (total / projects.length * 100) + '%';
+  PHASES.forEach((p) => {
+    const n = p.items.filter((_, i) => done[`${p.id}-${i}`]).length;
+    const link = document.querySelector(`.map a[data-phase="${p.id}"]`);
+    link.querySelector('b').style.width = (n / p.items.length * 100) + '%';
+    link.classList.toggle('complete', n === p.items.length);
+  });
+}
+
+projects.forEach((el) => {
+  el.querySelector('.check').addEventListener('change', (e) => {
+    if (e.target.checked) done[el.dataset.id] = true; else delete done[el.dataset.id];
+    save(); render();
+  });
+});
+
+document.querySelectorAll('button.copy').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    const pre = document.getElementById(btn.dataset.copy);
+    const ok = () => { btn.textContent = 'copiado'; setTimeout(() => { btn.textContent = 'copiar'; }, 1500); };
+    const fallback = () => {
+      const r = document.createRange(); r.selectNodeContents(pre);
+      const s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+      btn.textContent = 'selecionado, aperte ctrl+c';
+    };
+    try { navigator.clipboard.writeText(pre.textContent).then(ok, fallback); } catch (e) { fallback(); }
+  });
+});
+
+document.getElementById('reset').addEventListener('click', () => { done = {}; save(); render(); });
+render();
+</script>
+
+</html>
