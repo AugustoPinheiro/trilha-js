@@ -802,6 +802,18 @@ document.querySelectorAll('button.copy').forEach((btn) => {
   });
 });
 
+// o visualizador de artifacts roda a página num iframe em que a navegação por #âncora nem sempre rola a página
+document.getElementById('map').addEventListener('click', (e) => {
+  const link = e.target.closest('a[data-phase]');
+  if (!link) return;
+  const target = document.getElementById(link.dataset.phase);
+  if (!target) return;
+  e.preventDefault();
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  target.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+  try { history.replaceState(null, '', '#' + link.dataset.phase); } catch (err) {}
+});
+
 document.getElementById('reset').addEventListener('click', () => { done = {}; save(); render(); });
 render();
 </script>
