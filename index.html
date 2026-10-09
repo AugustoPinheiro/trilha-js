@@ -112,6 +112,13 @@ button.copy { font: inherit; font-family: var(--font-mono); font-size: 0.75rem; 
 .project dl { margin: 0 0 0 32px; display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 6px 14px; }
 .project dt { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); padding-top: 4px; }
 .project dd { margin: 0; min-width: 0; }
+.lessons { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0; }
+.lesson { display: grid; grid-template-columns: 22px 1.8em minmax(0, 1fr); gap: 10px; align-items: start; padding-block: 9px; border-top: 1px solid var(--line); }
+.lesson:first-child { border-top: none; }
+.lesson .lnum { font-family: var(--font-mono); font-size: 0.8rem; color: var(--muted); padding-top: 2px; font-variant-numeric: tabular-nums; }
+.lesson p { color: var(--muted); font-size: 0.95rem; }
+.lesson p .eyebrow { margin-right: 4px; }
+.lesson.is-done strong { text-decoration: line-through; text-decoration-color: var(--done); text-decoration-thickness: 2px; }
 .ai-box { background: var(--ai-bg); border-radius: 10px; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
 .ai-box h3 { color: var(--ai); }
 .ready { border-left: 4px solid var(--marker); padding: 2px 0 2px 14px; }
@@ -132,7 +139,7 @@ button.reset { font: inherit; font-size: 0.85rem; background: none; border: 1px 
 
 <div class="wrap">
   <header>
-    <span class="eyebrow">do zero ao fullstack · ~11 meses · 1 a 2h por dia</span>
+    <span class="eyebrow">do zero ao fullstack · 147 aulas · 87 projetos · 1 a 2h por dia</span>
     <h1>Trilha de <span class="mark">programação</span> em JavaScript</h1>
     <p class="lede">Um caminho completo para quem nunca programou: começa instalando as ferramentas, passa pela lógica, pela web, pelo frontend com React e pelo backend com Node e banco de dados, e termina com um app fullstack no ar. Cada fase é feita de prática, e cada fase ensina a usar a IA do jeito certo para aquele momento.</p>
     <div class="progress">
@@ -426,7 +433,264 @@ const PHASES = [
   }
 ];
 
-const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+// [título da aula, exercício prático]
+const LESSONS = {
+  f0: [
+    ['O que é programar', 'Escreva no papel os passos para fazer um miojo como se fosse para um robô que não sabe nada. Depois peça para alguém seguir ao pé da letra e veja onde dá errado.'],
+    ['Terminal sem medo', 'Crie pelo terminal as pastas `estudos-js/fase-0`, `fase-1` e `fase-2`, entre e saia delas e crie um arquivo em cada uma, sem usar o mouse.'],
+    ['VS Code produtivo', 'Aprenda `Ctrl+P` (abrir arquivo), `Ctrl+Shift+P` (comandos), `Ctrl+D` (multi-cursor) e `Ctrl+J` (abrir e fechar o terminal). Edite um arquivo só com o teclado por 10 minutos.'],
+    ['Git: commit, push e histórico', 'Faça 5 commits pequenos num arquivo de anotações e veja o histórico com `git log --oneline`.'],
+    ['Como ler erros e pesquisar', 'Provoque 3 erros de propósito (uma aspa faltando, uma variável que não existe, um parêntese a mais) e descubra o que cada mensagem quer dizer.'],
+    ['Como estudar programação', 'Crie um `diario.md` no repositório e, ao fim de cada dia de estudo, escreva 3 linhas: o que aprendeu, onde travou e o que vai fazer amanhã.']
+  ],
+  f1: [
+    ['Semana 1 · `console.log` e comentários', 'Imprima um cartão de visitas seu com 5 linhas no terminal.'],
+    ['Semana 1 · Variáveis com `let` e `const`', 'Guarde nome, idade e cidade e imprima uma frase com os três. Tente mudar um `const` e leia o erro.'],
+    ['Semana 1 · Tipos de dados e `typeof`', 'Crie uma variável de cada tipo (number, string, boolean, undefined, null) e imprima o `typeof` de cada uma.'],
+    ['Semana 2 · Operadores e precedência', 'Calcule a média de 3 notas. Erre de propósito tirando os parênteses e compare os resultados.'],
+    ['Semana 2 · Strings e template strings', 'Monte a frase "Olá, Ana! Você nasceu em 2010." usando crase e `${}`.'],
+    ['Semana 2 · Conversão de tipos e `NaN`', 'Teste `"5" + 3`, `"5" - 3`, `Number("abc")` e `parseInt("12px")`. Anote o resultado de cada um e o porquê.'],
+    ['Semana 3 · Comparações e booleanos', 'Teste a diferença entre `==` e `===` com 5 exemplos. Use sempre `===` daqui em diante.'],
+    ['Semana 3 · `if`, `else if` e `else`', 'Classifique uma temperatura em "frio", "agradável" ou "calor".'],
+    ['Semana 3 · `&&`, `||` e `!`', 'Monte a tabela verdade de cada operador no papel e confira no código. Depois: entrada grátis para menores de 12 OU maiores de 65.'],
+    ['Semana 4 · `switch` e operador ternário', 'Dado um número de 1 a 7, imprima o dia da semana com `switch`. Reescreva um `if` simples como ternário.'],
+    ['Semana 4 · O objeto `Math`', 'Simule um dado de 6 lados e jogue 10 vezes. Arredonde 4.567 de 3 formas diferentes.'],
+    ['Semana 4 · Ler o que o usuário digita', 'Instale `prompt-sync` com `npm install prompt-sync` e faça um programa que pergunta seu nome e responde.'],
+    ['Semana 5 · `while` e `do...while`', 'Peça senhas até o usuário acertar, contando as tentativas.'],
+    ['Semana 5 · `for`', 'Imprima a tabuada do 7, os números pares de 0 a 50 e uma contagem regressiva de 10 a 0.'],
+    ['Semana 5 · Contadores, acumuladores, `break` e `continue`', 'Leia números até digitar 0 e mostre a soma, a quantidade e a média.'],
+    ['Semana 6 · Loops dentro de loops', 'Imprima as tabuadas do 1 ao 10 e desenhe uma pirâmide de asteriscos.'],
+    ['Semana 6 · Funções: parâmetros e `return`', 'Crie `dobro(n)`, `ehPar(n)` e `areaRetangulo(base, altura)` e teste cada uma com 3 valores.'],
+    ['Semana 6 · Escopo e arrow functions', 'Reescreva as 3 funções como arrow functions. Teste o que acontece ao usar uma variável criada dentro da função fora dela.'],
+    ['Semana 7 · Arrays: criar e alterar', 'Monte uma playlist com `push`, `pop`, `shift` e `unshift` e imprima o array após cada operação.'],
+    ['Semana 7 · Percorrer arrays e `for...of`', 'Some os valores de um array de preços e conte quantos passam de R$ 50.'],
+    ['Semana 7 · `includes`, `indexOf`, `slice`, `splice` e `sort`', 'Numa lista de nomes: verifique se "Ana" está nela, remova o terceiro e ordene em ordem alfabética.'],
+    ['Semana 8 · `map`, `filter`, `reduce` e `find`', 'Refaça 3 exercícios da semana 7 com esses métodos em vez de `for`.'],
+    ['Semana 8 · Strings como listas de letras', 'Conte quantas vezes cada vogal aparece numa frase.'],
+    ['Semana 8 · Objetos e arrays de objetos', 'Crie um array de 5 alunos `{ nome, nota }` e liste os aprovados em ordem de nota.'],
+    ['Semana 8 · Matrizes', 'Crie uma matriz 3×3 e some cada linha, cada coluna e a diagonal.'],
+    ['Semana 8 · Recursão', 'Calcule fatorial e Fibonacci com recursão e desenhe no papel a pilha de chamadas de `fatorial(4)`.'],
+    ['Semana 8 · Debugando no VS Code', 'Coloque um breakpoint dentro de um loop e avance passo a passo vendo o valor das variáveis.']
+  ],
+  f2: [
+    ['Como a web funciona', 'Abra o DevTools, aba Network, carregue um site e conte quantos arquivos HTML, CSS, JS e imagens ele baixou.'],
+    ['Estrutura básica do HTML', 'Crie uma página com título, 2 parágrafos, um link e uma imagem.'],
+    ['Listas, tabelas e tags semânticas', 'Faça uma página com sua lista de jogos favoritos e uma tabela com seu horário de aulas.'],
+    ['Formulários', 'Crie um formulário com campos de texto, e-mail, data, select, checkbox e radio, todos com `label`.'],
+    ['Acessibilidade', 'Navegue na sua página só com Tab e Enter. Corrija tudo o que não der para alcançar.'],
+    ['CSS: seletores, cascata e especificidade', 'Estilize a mesma tag de 3 formas (tag, classe, id) e descubra qual vence e por quê.'],
+    ['Cores, unidades e tipografia', 'Troque todos os `px` de tamanho de fonte por `rem` e aplique uma fonte do Google Fonts.'],
+    ['Box model', 'Desenhe no papel margin, border e padding de um card e depois reproduza no CSS. Use `box-sizing: border-box`.'],
+    ['Flexbox', 'Monte um menu horizontal, um card com imagem ao lado do texto e um rodapé com 3 colunas.'],
+    ['Grid', 'Monte uma galeria de 9 fotos e um layout de página com cabeçalho, barra lateral, conteúdo e rodapé.'],
+    ['Responsivo e mobile first', 'Faça a galeria ter 1 coluna no celular, 2 no tablet e 3 no computador.'],
+    ['Posição, pseudo-classes e transições', 'Crie botões com `:hover` e `:focus`, um selo fixo no canto da tela e uma transição suave de cor.'],
+    ['Variáveis CSS e tema escuro', 'Defina as cores em variáveis e faça um tema escuro com `prefers-color-scheme`.'],
+    ['Publicar no GitHub Pages', 'Publique seu currículo e mande o link para 3 pessoas.']
+  ],
+  f3: [
+    ['O que é o DOM', 'Abra o Console num site qualquer e mude o título da página com `document.querySelector("h1").textContent = "..."`.'],
+    ['Selecionar e alterar elementos', 'Crie uma página com um parágrafo e 3 botões que mudam o texto, a cor e o tamanho dele.'],
+    ['Eventos', 'Mostre na tela qual tecla foi apertada e um contador de caracteres para um campo de texto.'],
+    ['Criar e remover elementos', 'Uma lista onde cada clique em "adicionar" cria um item novo com um botão de remover.'],
+    ['`classList` e estados visuais', 'Um menu que abre e fecha e um botão de curtir que alterna entre ativo e inativo.'],
+    ['Formulários com JavaScript', 'Valide e-mail e senha antes de enviar, mostrando o erro embaixo de cada campo. Use `preventDefault()`.'],
+    ['Delegação de eventos', 'Refaça a lista de itens com um único `addEventListener` no elemento pai.'],
+    ['`localStorage` e JSON', 'Salve o nome do usuário e o tema escolhido e mostre os dois ao recarregar a página.'],
+    ['Timers', 'Um cronômetro com iniciar, pausar e zerar.'],
+    ['Estado e render', 'Organize um app como "dados em um array → função que desenha a tela a partir dos dados". Toda mudança altera os dados e chama `render()`.'],
+    ['Debugger do DevTools', 'Encontre um bug num projeto seu usando só breakpoints, sem `console.log`.'],
+    ['Canvas', 'Desenhe formas e anime uma bolinha que quica nas bordas da tela.'],
+    ['Acessibilidade em componentes', 'Garanta que o menu e os botões funcionam com teclado e têm foco visível.']
+  ],
+  f4: [
+    ['HTTP: pedido e resposta', 'Na aba Network, abra uma requisição e identifique método, URL, status e corpo da resposta.'],
+    ['JSON', 'Converta um objeto para texto com `JSON.stringify` e de volta com `JSON.parse`. Escreva à mão o JSON de um perfil seu.'],
+    ['Síncrono e assíncrono', 'Preveja a ordem de 3 `console.log`, um deles dentro de `setTimeout(..., 0)`, e confira rodando.'],
+    ['Callbacks', 'Escreva uma função `esperar(ms, callback)` e encadeie 3 esperas. Perceba por que isso fica confuso.'],
+    ['Promises', 'Transforme `esperar` numa função que retorna Promise e encadeie com `.then()`.'],
+    ['`async` / `await` e `try` / `catch`', 'Reescreva o encadeamento com `await` e trate um erro de propósito.'],
+    ['`fetch`', 'Busque um conselho aleatório na Advice Slip API e mostre na tela.'],
+    ['Carregando, erro e vazio', 'Adicione os 3 estados ao buscador de CEP e teste cada um.'],
+    ['Várias requisições: `Promise.all`', 'Busque 10 Pokémon em paralelo e meça o tempo comparando com buscar um de cada vez.'],
+    ['POST e chaves de API', 'Envie dados com `fetch` método POST para o httpbin.org e entenda por que uma chave secreta nunca pode ficar no código do navegador.']
+  ],
+  f5: [
+    ['npm e `package.json`', 'Crie um projeto com `npm init -y`, instale um pacote, crie um script `npm run ola` e entenda por que `node_modules` vai no `.gitignore`.'],
+    ['Módulos com `import` e `export`', 'Separe as funções da fase 1 em arquivos e importe num `main.js`.'],
+    ['Vite', 'Crie um projeto com `npm create vite@latest`, rode o servidor e gere o build de produção.'],
+    ['ESLint e Prettier', 'Configure os dois num projeto e corrija todos os avisos.'],
+    ['TypeScript: tipos básicos', 'Tipifique 5 funções da fase 1 e veja o editor apontar os erros antes de rodar.'],
+    ['TypeScript: `type`, `interface` e união', 'Modele um `Produto`, um `Pedido` e um status `"pendente" | "pago" | "enviado"`.'],
+    ['Testes com Vitest', 'Escreva 5 testes para a função do caixa eletrônico.'],
+    ['TDD: o teste primeiro', 'Faça o "String Calculator kata" escrevendo cada teste antes do código.'],
+    ['Git: branch, merge e conflitos', 'Crie duas branches que mudam a mesma linha, faça o merge e resolva o conflito.'],
+    ['GitHub: issues, PRs e README', 'Abra 3 issues no seu repositório e resolva cada uma com uma PR que fecha a issue.'],
+    ['Debug no VS Code', 'Configure o debugger para rodar os testes e pare num breakpoint dentro de um teste.']
+  ],
+  f6: [
+    ['Por que React existe', 'Crie um projeto com `npm create vite@latest` (React + TypeScript) e entenda cada arquivo gerado.'],
+    ['JSX e componentes', 'Transforme a página de currículo da fase 2 em componentes React.'],
+    ['Props e `children`', 'Crie um componente `Card` reutilizável e use 3 vezes com dados diferentes.'],
+    ['`useState` e eventos', 'Um contador, um campo que mostra o texto digitado ao vivo e um botão de mostrar e esconder.'],
+    ['Condicionais e listas com `key`', 'Renderize uma lista de produtos com aviso de "esgotado" quando o estoque for zero.'],
+    ['Formulários controlados', 'Formulário de cadastro com validação mostrando erros enquanto a pessoa digita.'],
+    ['Elevando o estado', 'Dois componentes irmãos que compartilham o mesmo valor através do pai.'],
+    ['`useEffect` e busca de dados', 'Busque dados de uma API ao abrir a página, com loading e erro.'],
+    ['Hooks próprios', 'Extraia a lógica de busca para um `useFetch` e a de salvar no navegador para um `useLocalStorage`.'],
+    ['React Router', 'App com página inicial, lista, detalhes com `/:id` e página 404.'],
+    ['Context API', 'Tema claro e escuro disponível para o app inteiro sem passar props.'],
+    ['Tailwind CSS', 'Estilize um projeto inteiro só com classes do Tailwind.'],
+    ['TanStack Query', 'Troque o `useFetch` pelo TanStack Query e veja o cache funcionando.'],
+    ['React Hook Form + zod', 'Refaça o formulário de cadastro com as duas bibliotecas.'],
+    ['Performance: `memo`, `useMemo` e quando não usar', 'Use o React DevTools Profiler para ver quais componentes renderizam a cada clique.'],
+    ['Testando componentes', 'Escreva testes com Testing Library para o formulário de cadastro.']
+  ],
+  f7: [
+    ['Node por dentro', 'Use `process.argv`, `node:path` e `node:os` para imprimir informações do seu computador.'],
+    ['Arquivos com `node:fs`', 'Leia um arquivo `.txt`, conte as palavras e salve o resultado num `.json`.'],
+    ['Programas de linha de comando', 'Uma CLI `node calc.js soma 2 3` que faz as 4 operações.'],
+    ['Servidor com `node:http`', 'Um servidor que responde rotas diferentes e devolve 404 para as desconhecidas.'],
+    ['Express: rotas e JSON', 'Recrie o servidor anterior com Express e compare a quantidade de código.'],
+    ['REST e status codes', 'Para cada rota da API de tarefas, escreva no README o método, a URL e os status possíveis.'],
+    ['Parâmetros, query string e body', 'Adicione `GET /tarefas?feita=true&busca=mercado` à sua API.'],
+    ['Middlewares', 'Um middleware de log que mostra método, URL e tempo de resposta, e um de tratamento de erros.'],
+    ['Validação com zod', 'Valide o body de todas as rotas e devolva mensagens de erro claras.'],
+    ['Organização em camadas', 'Separe a API em rotas, controllers e services.'],
+    ['Variáveis de ambiente', 'Mova a porta e configurações para um `.env` e crie um `.env.example` para o repositório.'],
+    ['Documentar a API', 'Documente todas as rotas no README com exemplos de pedido e resposta.'],
+    ['Testar a API', 'Testes com Vitest e supertest para cada rota, incluindo os casos de erro.']
+  ],
+  f8: [
+    ['Por que usar banco de dados', 'Liste os dados de um app que você usa (Instagram, iFood) e desenhe as tabelas no papel.'],
+    ['Criar tabelas', 'Crie as tabelas `alunos` e `turmas` com chave primária e tipos certos.'],
+    ['`SELECT`, `WHERE`, `ORDER BY` e `LIMIT`', 'Escreva 10 consultas diferentes sobre a tabela de alunos.'],
+    ['`INSERT`, `UPDATE` e `DELETE`', 'Insira 20 alunos, atualize notas e apague um. Entenda o perigo de `DELETE` sem `WHERE`.'],
+    ['Relacionamentos e chave estrangeira', 'Modele um para muitos (turma tem alunos) e muitos para muitos (alunos fazem várias matérias).'],
+    ['`JOIN`', 'Liste cada aluno com o nome da turma e as matérias que faz.'],
+    ['`GROUP BY` e agregações', 'Média de notas por turma e quantidade de alunos por matéria.'],
+    ['Índices', 'Crie 100 mil linhas de teste e compare o tempo de uma busca com e sem índice.'],
+    ['Prisma: schema, migrations e client', 'Modele a escola no Prisma, rode a migration e faça as consultas da aula 6 pelo Prisma.'],
+    ['Autenticação: hash, sessão e JWT', 'Cadastro e login com senha em bcrypt. Abra o banco e confirme que a senha não aparece.'],
+    ['Autorização e rotas protegidas', 'Um middleware que bloqueia rotas sem login e outro que só deixa o dono editar.'],
+    ['Segurança', 'Leia o OWASP Top 10 e teste sua API contra SQL injection e XSS.'],
+    ['Docker para o banco local', 'Rode um Postgres com `docker run` e conecte seu projeto nele.'],
+    ['Cache com Redis', 'Guarde por 10 minutos o resultado de uma consulta lenta e compare o tempo.']
+  ],
+  f9: [
+    ['O que é Next.js', 'Crie um projeto com `npx create-next-app@latest` e entenda a pasta `app/`.'],
+    ['Páginas, layouts e rotas dinâmicas', 'Um site com layout comum, 3 páginas e uma rota `/posts/[slug]`.'],
+    ['Server e Client Components', 'Liste quais partes do seu app precisam de interatividade e marque só elas com `"use client"`.'],
+    ['Buscar dados no servidor e cache', 'Busque dados de uma API num Server Component e teste as opções de cache.'],
+    ['Server Actions e formulários', 'Um formulário que salva no banco sem você escrever uma rota de API.'],
+    ['Route Handlers', 'Crie `app/api/tarefas/route.ts` com GET e POST.'],
+    ['Autenticação no Next', 'Adicione login com Auth.js ou Clerk e proteja uma página.'],
+    ['Prisma + Postgres no Next', 'Conecte o projeto ao banco do Neon e liste os dados numa página.'],
+    ['Deploy na Vercel', 'Publique, configure as variáveis de ambiente e veja um deploy de preview numa PR.'],
+    ['Testes de ponta a ponta com Playwright', 'Um teste que faz cadastro, login e cria um item, como um usuário de verdade.'],
+    ['GitHub Actions', 'Uma pipeline que roda lint, testes e build em toda PR.'],
+    ['Logs, erros e analytics', 'Veja os logs do app na Vercel e adicione um rastreador de erros, como o Sentry.'],
+    ['SEO e performance', 'Rode o Lighthouse e leve a nota de performance acima de 90.'],
+    ['Outras formas de deploy', 'Coloque a API da fase 7 num container Docker e publique no Render ou Railway.']
+  ],
+  f10: [
+    ['Listas ligadas, pilhas e filas', 'Implemente as três em TypeScript com testes.'],
+    ['Hash maps e conjuntos', 'Resolva "Two Sum" com dois loops e depois com um `Map`, e compare.'],
+    ['Árvores e grafos', 'Implemente uma árvore binária de busca e uma busca em largura num labirinto.'],
+    ['Big O, busca e ordenação', 'Implemente bubble sort, merge sort e busca binária e meça o tempo com 100 mil itens.'],
+    ['Design de sistemas básico', 'Desenhe como funcionaria um encurtador de links para 1 milhão de usuários: banco, cache e filas.'],
+    ['Construir com IA', 'Chame a API do Claude a partir de um servidor Node e faça um assistente que responde perguntas sobre um texto.'],
+    ['Mobile com React Native e Expo', 'Rode um app Expo no seu celular e porte a lista de tarefas para ele.'],
+    ['Trabalhar em equipe', 'Participe de um projeto em grupo (hackathon, projeto da faculdade ou open source) com tarefas, PRs e revisões.'],
+    ['Inglês técnico', 'Assista a uma palestra em inglês sobre JavaScript e escreva um resumo de um parágrafo em inglês.']
+  ]
+};
+
+const MORE_PROJECTS = {
+  f0: [
+    { t: 'README do repositório de estudos', d: 'Escreva um `README.md` em Markdown com quem você é, seus objetivos e uma tabela com as fases desta trilha para marcar o progresso.', h: 'Pesquise "Markdown guia" e use títulos, listas, tabela e um link.' }
+  ],
+  f1: [
+    { t: 'Tabuada formatada', d: 'Imprima as tabuadas do 1 ao 10 lado a lado, alinhadas em colunas.', h: 'Use `String(n).padStart(3)` para alinhar os números.' },
+    { t: 'Gerador de senhas', d: 'Função `gerarSenha(tamanho, { numeros, simbolos, maiusculas })` que monta uma senha aleatória com as opções escolhidas.', h: 'Junte os caracteres permitidos numa string e sorteie posições dela.' },
+    { t: 'Números romanos', d: 'Converta números de 1 a 3999 para algarismos romanos e de volta.', h: 'Use uma tabela com os valores, incluindo os casos especiais como 4 (IV) e 9 (IX).' },
+    { t: 'Jogo da forca no terminal', d: 'Sorteia uma palavra, o jogador digita letras com `prompt-sync`, e o programa mostra os acertos, as letras usadas e as vidas restantes.', h: 'Guarde as letras chutadas num array e redesenhe a palavra a cada rodada.', x: 'Desenhe o boneco da forca em ASCII.' },
+    { t: 'Menu de banco no terminal', d: 'Um menu em loop: 1 depositar, 2 sacar, 3 extrato, 0 sair. O programa só termina quando o usuário escolhe sair.', h: 'Um `while` com `switch` dentro.' },
+    { t: 'Calendário do mês', d: 'Imprima o calendário de um mês com os dias da semana em colunas, como um calendário de papel.', h: '`new Date(ano, mes, 1).getDay()` diz em que dia da semana o mês começa.' }
+  ],
+  f2: [
+    { t: 'Página de receita', d: 'A receita favorita da família com foto, ingredientes em lista, modo de preparo numerado e tempo de preparo.', h: 'Use `figure`, `ul`, `ol` e `time`.' },
+    { t: 'Clone da página do Google', d: 'Reproduza a página inicial do Google: logo, campo de busca, dois botões e rodapé.', h: 'Um flexbox em coluna, centralizado, resolve quase tudo.' },
+    { t: 'Cardápio de restaurante', d: 'Cardápio de uma lanchonete do seu bairro com categorias, fotos, preços e layout em grid.', x: 'Mostre o cardápio para o dono da lanchonete.' },
+    { t: 'Formulário de inscrição acessível', d: 'Formulário de inscrição para um campeonato com validação nativa do HTML, mensagens claras e uso completo pelo teclado.', h: 'Teste com o leitor de tela do celular ou do computador.' }
+  ],
+  f3: [
+    { t: 'Relógio e cronômetro', d: 'Um relógio digital que atualiza a cada segundo e um cronômetro com voltas registradas.', h: '`setInterval` e `new Date().toLocaleTimeString("pt-BR")`.' },
+    { t: 'Teste de digitação', d: 'Mostre uma frase, meça o tempo e os erros enquanto a pessoa digita e calcule palavras por minuto.', h: 'Compare letra por letra a cada evento `input`.' },
+    { t: 'Jogo da velha no navegador', d: 'Leve a lógica da fase 1 para uma interface com placar e botão de nova partida.', h: 'A função de verificar vitória da fase 1 pode ser reaproveitada sem mudar nada.' },
+    { t: 'Jogo da cobrinha', d: 'Snake no `canvas` com setas do teclado, comida aleatória, placar e aumento de velocidade.', h: 'A cobra é um array de posições. A cada passo, adiciona uma na frente e remove a de trás.', x: 'Salve o recorde no `localStorage`.' },
+    { t: 'Carrossel de imagens', d: 'Carrossel com botões de anterior e próximo, bolinhas de navegação e troca automática a cada 5 segundos.', h: 'Pare a troca automática quando o mouse estiver em cima.' }
+  ],
+  f4: [
+    { t: 'Feriados do ano', d: 'Liste os feriados nacionais do ano com a BrasilAPI e mostre quantos dias faltam para o próximo.', h: '`https://brasilapi.com.br/api/feriados/v1/2026`' },
+    { t: 'Perfil do GitHub', d: 'Digite um usuário do GitHub e mostre foto, bio, seguidores e os repositórios mais recentes.', h: 'API pública: `https://api.github.com/users/NOME` e `/users/NOME/repos`.' },
+    { t: 'Busca de livros', d: 'Busque livros na Open Library com capa, autor e ano, e uma estante de favoritos salva no navegador.', h: 'Faça a busca só depois que a pessoa parar de digitar por meio segundo.' }
+  ],
+  f5: [
+    { t: 'Kata com TDD', d: 'Faça o "Bowling Game kata" escrevendo cada teste antes do código e commitando a cada teste que passa.', h: 'O histórico de commits deve contar a história: teste falhando, teste passando, refatoração.' },
+    { t: 'Biblioteca de utilitários', d: 'Junte as melhores funções das fases anteriores (formatar moeda, validar CPF, gerar senha) num pacote com TypeScript, testes e README.', h: 'Pesquise como o cálculo dos dígitos verificadores do CPF funciona.', x: 'Publique no npm.' }
+  ],
+  f6: [
+    { t: 'Pokédex em React', d: 'A Pokédex da fase 4 refeita em React com rotas, busca, filtro por tipo e paginação.', h: 'Compare a quantidade de código e a organização com a versão sem React.' },
+    { t: 'App de receitas', d: 'Busque receitas na TheMealDB com filtro por categoria, página de detalhes e favoritos.', h: 'A API é gratuita e não precisa de chave para os endpoints de teste.' },
+    { t: 'Painel administrativo', d: 'Tabela de usuários com busca, ordenação por coluna, paginação e modal de edição. Use dados de exemplo gerados com a biblioteca Faker.', h: 'Pesquise a biblioteca TanStack Table.' },
+    { t: 'Clone de interface', d: 'Reproduza a tela inicial do Spotify ou da Netflix com dados de exemplo, responsiva e com componentes bem divididos.', h: 'Antes de codar, desenhe a árvore de componentes.' }
+  ],
+  f7: [
+    { t: 'CLI de tarefas', d: 'Gerenciador de tarefas pelo terminal: `tarefas add "estudar"`, `tarefas list`, `tarefas done 2`. Os dados ficam num arquivo JSON.', h: 'Leia o arquivo no início e salve a cada mudança.' },
+    { t: 'API de cardápio', d: 'API de um restaurante com categorias, pratos, filtros por preço e busca por nome, com testes.', h: 'Reaproveite o cardápio da fase 2 como frontend.' },
+    { t: 'Chat em tempo real', d: 'Um chat com salas usando WebSocket (socket.io), mostrando quem está online e quem está digitando.', h: 'Diferente do HTTP, aqui o servidor envia mensagens sem o navegador pedir.' },
+    { t: 'Bot do Telegram', d: 'Um bot que responde com a previsão do tempo, a cotação do dólar ou um CEP, reaproveitando os projetos da fase 4.', h: 'Crie o bot com o @BotFather e guarde o token no `.env`.' }
+  ],
+  f8: [
+    { t: 'Sistema de biblioteca', d: 'Banco com livros, membros e empréstimos. Consultas: livros atrasados, quem mais pegou livros e livros nunca emprestados.', h: 'Empréstimo é a tabela que liga membro e livro.' },
+    { t: 'Loja com pedidos', d: 'API de loja com produtos, carrinho e pedidos. O estoque diminui ao finalizar a compra, e duas compras ao mesmo tempo não podem vender o mesmo último item.', h: 'Pesquise "transação" no Prisma.' },
+    { t: 'Rede social mínima', d: 'Usuários que postam, seguem outros e veem um feed só com posts de quem seguem.', h: 'Seguir é uma relação muitos para muitos entre usuários.' }
+  ],
+  f9: [
+    { t: 'Blog com Markdown', d: 'Blog em Next.js onde cada post é um arquivo `.md`, com página de lista, página do post, tags e boa nota no Lighthouse.', h: 'Gere as páginas estaticamente no build.' },
+    { t: 'Kanban fullstack', d: 'O Kanban da fase 6 com login, banco de dados, vários quadros por usuário e convite para outras pessoas.', h: 'Pense em quem pode ver e editar cada quadro antes de criar as tabelas.' },
+    { t: 'Agendamento para negócio local', d: 'Sistema onde clientes escolhem horário e o dono vê a agenda do dia. Horários ocupados não podem ser escolhidos.', x: 'Envie um e-mail de confirmação com o Resend.' },
+    { t: 'Loja com pagamento de teste', d: 'Loja com carrinho e checkout usando o modo de teste do Stripe ou do Mercado Pago, que não movimenta dinheiro de verdade.', h: 'Use só as chaves e os cartões de teste da documentação.' }
+  ],
+  f10: [
+    { t: 'Estruturas de dados do zero', d: 'Um repositório com lista ligada, pilha, fila, árvore e grafo implementados em TypeScript, com testes e explicação no README.', h: 'Explicar no README é o que mostra que você entendeu.' },
+    { t: 'Chatbot de estudos com IA', d: 'Um app onde você cola um texto e a IA gera perguntas de revisão, corrige suas respostas e explica os erros.', h: 'Leia a documentação da API do Claude sobre mensagens e system prompt.' },
+    { t: 'App mobile com Expo', d: 'Um app no celular que consome a sua API da fase 8, com login e lista de itens.', h: 'O código React que você já sabe funciona quase igual no React Native.' }
+  ]
+};
+
+const MORE_PROMPTS = {
+  f0: 'Explique o que é Git usando uma analogia com salvar o progresso de um videogame. Depois me faça 3 perguntas para eu ver se entendi.',
+  f1: 'Estou estudando loops em JavaScript. Me dê 5 exercícios, do mais fácil ao mais difícil, sem as respostas. Quando eu terminar cada um, vou te mostrar para revisar.',
+  f2: 'Meu layout com flexbox não fica como eu quero. Eu queria [descreva], mas está [descreva]. Meu CSS: [cole]. Me explique o que está acontecendo antes de sugerir a correção.',
+  f3: 'Revise meu jogo da memória: [cole]. Foque em organização do código e em bugs que podem acontecer se o usuário clicar muito rápido.',
+  f4: 'Explique o event loop do JavaScript como se fosse uma cozinha de restaurante. Depois me mostre um código curto e me peça para prever a ordem dos console.log.',
+  f5: 'Estou aprendendo TDD. Vou te mandar um teste de cada vez e o código que fiz para passar. Avalie se estou dando passos pequenos o suficiente.',
+  f6: 'Meu componente React renderiza em loop infinito: [cole]. Me faça perguntas para eu descobrir a causa sozinho antes de explicar.',
+  f7: 'Quero criar uma API de encurtador de links. Me ajude a planejar as rotas, os status codes e os casos de erro. Não escreva código; eu vou implementar e te mostrar.',
+  f8: 'Vou te mostrar o schema do meu banco: [cole]. Avalie a modelagem: tem dado repetido? Falta alguma relação? Que consultas ficariam lentas?',
+  f9: 'Leia este diff que um agente de IA gerou no meu projeto: [cole]. Me ajude a revisar: o que ele faz, que riscos tem e que testes eu deveria rodar antes de aceitar.',
+  f10: 'Me ensine Big O com exemplos do dia a dia e depois me dê 5 trechos de código para eu dizer a complexidade de cada um.'
+};
+
+PHASES.forEach((p) => {
+  p.lessons = LESSONS[p.id] || [];
+  p.items = p.items.concat(MORE_PROJECTS[p.id] || []);
+  p.prompts = [p.ai.prompt, MORE_PROMPTS[p.id]].filter(Boolean);
+});
+
+const esc =(s) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const fmt = (s) => esc(s).replace(/`([^`]+)`/g, '<code>$1</code>');
 
 const KEY = 'trilha-js-completa-v2';
@@ -455,7 +719,20 @@ document.getElementById('phases').innerHTML = PHASES.map((p) => `
     <div class="concepts">${p.concepts.map((c) => `<code>${esc(c)}</code>`).join('')}</div>
     <div class="block"><h3>Prática diária</h3><ul>${p.practice.map((x) => `<li>${fmt(x)}</li>`).join('')}</ul></div>
     <div class="block">
-      <h3>Projetos</h3>
+      <h3>Aulas <span class="muted" style="font-weight:400">· ${p.lessons.length}, em ordem</span></h3>
+      <ol class="lessons">
+        ${p.lessons.map(([t, pr], i) => {
+          const id = `${p.id}-a${i}`;
+          return `<li class="lesson" data-id="${id}">
+            <input type="checkbox" class="check" id="chk-${id}" aria-label="marcar aula como feita">
+            <span class="lnum">${i + 1}</span>
+            <div><strong>${fmt(t)}</strong><p><span class="eyebrow">pratique</span> ${fmt(pr)}</p></div>
+          </li>`;
+        }).join('')}
+      </ol>
+    </div>
+    <div class="block">
+      <h3>Projetos <span class="muted" style="font-weight:400">· ${p.items.length}</span></h3>
       ${p.items.map((it, i) => {
         const id = `${p.id}-${i}`;
         return `<article class="project" data-id="${id}">
@@ -472,32 +749,36 @@ document.getElementById('phases').innerHTML = PHASES.map((p) => `
       <span class="pill">ia: ${esc(p.ai.level)}</span>
       <h3>Como usar IA nesta fase</h3>
       <p>${fmt(p.ai.text)}</p>
-      <div class="prompt">
-        <div class="prompt-head"><span class="eyebrow">exemplo de prompt</span><button class="copy" type="button" data-copy="${p.id}-prompt">copiar</button></div>
-        <pre id="${p.id}-prompt">${esc(p.ai.prompt)}</pre>
-      </div>
+      ${p.prompts.map((pr, i) => `<div class="prompt">
+        <div class="prompt-head"><span class="eyebrow">exemplo de prompt ${i + 1}</span><button class="copy" type="button" data-copy="${p.id}-prompt${i}">copiar</button></div>
+        <pre id="${p.id}-prompt${i}">${esc(pr)}</pre>
+      </div>`).join('')}
     </div>
     <div class="block"><h3>Onde estudar</h3><ul>${p.resources.map(([t, u]) => `<li><a href="${u}" target="_blank" rel="noopener">${esc(t)}</a></li>`).join('')}</ul></div>
     <p class="ready"><strong>Você está pronto para a próxima fase quando</strong> ${fmt(p.ready)}</p>
   </section>`).join('');
 
-const projects = [...document.querySelectorAll('.project')];
+const projects = [...document.querySelectorAll('.project, .lesson')];
 
 function render() {
-  let total = 0;
+  let lessonsDone = 0, projectsDone = 0, lessonsTotal = 0;
   projects.forEach((el) => {
     const isDone = !!done[el.dataset.id];
+    const isLesson = el.classList.contains('lesson');
     el.classList.toggle('is-done', isDone);
     el.querySelector('.check').checked = isDone;
-    if (isDone) total++;
+    if (isLesson) lessonsTotal++;
+    if (isDone) isLesson ? lessonsDone++ : projectsDone++;
   });
-  document.getElementById('count').textContent = `${total} de ${projects.length} itens feitos`;
-  document.getElementById('bar-fill').style.width = (total / projects.length * 100) + '%';
+  const projectsTotal = projects.length - lessonsTotal;
+  document.getElementById('count').textContent = `${lessonsDone} de ${lessonsTotal} aulas · ${projectsDone} de ${projectsTotal} projetos`;
+  document.getElementById('bar-fill').style.width = ((lessonsDone + projectsDone) / projects.length * 100) + '%';
   PHASES.forEach((p) => {
-    const n = p.items.filter((_, i) => done[`${p.id}-${i}`]).length;
+    const ids = p.lessons.map((_, i) => `${p.id}-a${i}`).concat(p.items.map((_, i) => `${p.id}-${i}`));
+    const n = ids.filter((id) => done[id]).length;
     const link = document.querySelector(`.map a[data-phase="${p.id}"]`);
-    link.querySelector('b').style.width = (n / p.items.length * 100) + '%';
-    link.classList.toggle('complete', n === p.items.length);
+    link.querySelector('b').style.width = (n / ids.length * 100) + '%';
+    link.classList.toggle('complete', n === ids.length);
   });
 }
 
