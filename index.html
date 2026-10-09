@@ -739,7 +739,7 @@ document.getElementById('phases').innerHTML = PHASES.map((p) => `
           <div class="project-title"><input type="checkbox" class="check" id="chk-${id}" aria-label="marcar como feito: ${esc(it.t)}"><h3>${esc(it.t)}</h3></div>
           <dl>
             <dt>O que fazer</dt><dd>${fmt(it.d)}</dd>
-            <dt>Dica</dt><dd>${fmt(it.h)}</dd>
+            ${it.h ? `<dt>Dica</dt><dd>${fmt(it.h)}</dd>` : ''}
             ${it.x ? `<dt>Extra</dt><dd>${fmt(it.x)}</dd>` : ''}
           </dl>
         </article>`;
